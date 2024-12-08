@@ -1,3 +1,16 @@
+# Advent of Code 2024 - Day 3, Part 2
+# Task Description:
+# In a corrupted "binary file", find all the correctly written multiplication commands of form "mul(a,b)" where
+# a and b are positive integers. Do the calculation and accumulate all results in a sum. When a do() command is found,
+# enable multiplications, when a don't() command is found, ignore all multiplications until the next do().
+# 
+# Link: https://adventofcode.com/2024/day/3
+# Author: Adrian Fluturel
+# Email: fluturel.adrian@gmail.com
+# Date: 2024-12-04
+#
+# License: MIT License
+
 file_string = ""
 with open("input.txt", "r") as f:
     file_string = f.readlines()

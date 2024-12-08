@@ -1,3 +1,17 @@
+# Advent of Code 2024 - Day 4, Part 2
+# Task Description:
+# In a grid of letters, find all occurences of 'MAS' or 'SAM' in a cross pattern:
+# .M.S.
+# ..A..
+# .M.S.
+# 
+# Link: https://adventofcode.com/2024/day/4
+# Author: Adrian Fluturel
+# Email: fluturel.adrian@gmail.com
+# Date: 2024-12-04
+#
+# License: MIT License
+
 def load_file_into_array():
     text = []
     with open("input.txt", "r") as f:

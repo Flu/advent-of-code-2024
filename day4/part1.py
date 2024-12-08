@@ -1,3 +1,15 @@
+# Advent of Code 2024 - Day 4, Part 1
+# Task Description:
+# In a grid of letters, find all occurences of the word 'XMAS', in vertical, horizontal, diagonal position,
+# forwards or reversed.
+# 
+# Link: https://adventofcode.com/2024/day/4
+# Author: Adrian Fluturel
+# Email: fluturel.adrian@gmail.com
+# Date: 2024-12-04
+#
+# License: MIT License
+
 def load_file_into_array():
     text = []
     with open("input.txt", "r") as f:

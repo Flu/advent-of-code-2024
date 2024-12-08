@@ -1,3 +1,14 @@
+# Advent of Code 2024 - Day 1, Part 2
+# Task Description:
+# Find the similarty of two lists by comparing their smallest numbers and adding all the results together
+# 
+# Link: https://adventofcode.com/2024/day/1
+# Author: Adrian Fluturel
+# Email: fluturel.adrian@gmail.com
+# Date: 2024-12-04
+#
+# License: MIT License
+
 def get_list_from_file(filename):
     list1 = []
     list2 = []

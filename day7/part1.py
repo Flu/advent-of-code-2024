@@ -1,3 +1,16 @@
+# Advent of Code 2024 - Day 7, Part 1
+# Task Description:
+# Get a list of expressions of the form result -> a b c d... 
+# Given the operations + and *, find the combination of operands and operations such that it results
+# in result. There is no precedence here to take into account, all expressions are executed left-to-right.
+# 
+# Link: https://adventofcode.com/2024/day/7
+# Author: Adrian Fluturel
+# Email: fluturel.adrian@gmail.com
+# Date: 2024-12-07
+#
+# License: MIT License
+
 from itertools import product
 
 def extract_numbers(file_name):

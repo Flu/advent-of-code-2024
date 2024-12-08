@@ -1,19 +1,38 @@
-from typing import List, Self
+# Advent of Code 2024 - Day 6, Part 2
+# Task Description:
+# Given a grid of cells, a cell can be a player, an obstace or empty space. 
+# The player has a starting orientation of UP. When simulating the player, the player will start going
+# up until it hits an obstacle, at which point, it will rotate 90° to the right and keeps going. The 
+# simulation is considered over when the player exits the bound of the map. The map is always a rectangle.
+# The goal is to find all maps, that when added an obstacle to the initial one, make the player enter an infinite loop.
+# 
+# Link: https://adventofcode.com/2024/day/6
+# Author: Adrian Fluturel
+# Email: fluturel.adrian@gmail.com
+# Date: 2024-12-06
+#
+# License: MIT License
+
+from typing import List, Self, Optional, Tuple
 from enum import Enum
 import time
 
 class Cell:
-    def __init__(self: Self, isVisited: bool, isObstacle: bool):
+    """Cell class to hold the state of a cell, visited or an obstacle"""
+
+    def __init__(self: Self, isVisited: bool, isObstacle: bool) -> None:
         self.visited = isVisited
         self.obstacle = isObstacle
 
 class Orientation(Enum):
+    """Orientation class for the player"""
     UP = 0
     DOWN = 1
     LEFT = 2
     RIGHT = 3
 
     def rotate(self: Self) -> Self:
+        """Take the given orienation and rotate 90° to the right"""
         if self == Orientation.UP:
             return Orientation.RIGHT
         elif self == Orientation.DOWN:
@@ -24,7 +43,12 @@ class Orientation(Enum):
             return Orientation.DOWN
 
 class Map:
+    """Class for holding player information and the map itself"""
+
     def __init__(self: Self, lines: List[List[str]] = None) -> None:
+        """Takes an optional list of lists of strings with the raw characters, as they are in the input file. Takes every position and
+        categorizes it based on the state of the cell. It also finds the player and initializes player-related fields like 
+        the position, orientation."""
         self.grid = []
         self.player_posx = 0
         self.player_posy = 0
@@ -54,6 +78,7 @@ class Map:
         self.__columns = len(self.grid[0])
 
     def how_many_visited(self: Self) -> int:
+        """Traverses the whole map and counts all cells that were visited, returns the count"""
         count = 0
         for line in self.grid:
             for cell in line:
@@ -61,24 +86,36 @@ class Map:
         return count
 
     def get(self: Self, row, column) -> Cell:
+        """Returns the cell at the given row and column indices"""
         return self.grid[row][column]
     
-    def columns(self: Self) -> int:
-        return self.__columns
-    
     def rows(self: Self) -> int:
+        """Returns the number of rows in the map"""
         return self.__rows
     
+    def columns(self: Self) -> int:
+        """Returns the number of columns in the map"""
+        return self.__columns
+    
     def reset_sim(self: Self, posx: int, posy: int) -> None:
+        """Resets all parameters inside the object to their default values, except for the grid itself.
+        Takes as parameters the initial position of the player."""
         self.player_posx = posx
         self.player_posy = posy
         self.moves = 0
         self.orientation = Orientation.UP
 
-    def until_next_obstacle(self: Self):
+    def until_next_obstacle(self: Self) -> Optional[Tuple[int, int]]:
+        """Run the simulation until the player gets at the next obstacle.
+        Returns None if the simulation has entered an infinite loop.
+        Returns (-1,-1) if the player has exited the simulation.
+        Returns the last valid coordinates of the player after hitting an obstacle. It also rotates the player."""
+
+        # If the number of moves so far is bigger than the total number of cells in the grid, it is an infinite loop
         if self.moves > self.columns()*self.rows():
             return None
 
+        # Calculate the dx and dy based on the orientation of the player
         x_offset = 0
         y_offset = 0
         if self.orientation == Orientation.UP:
@@ -91,17 +128,29 @@ class Map:
             y_offset = +1
 
         while True:
+            # Increment the total number of moves
             self.moves += 1
+
+            # If the coordinates of the next cell to be visited are not valid anymore, it means
+            # we've exited the map and the simulation is done, return (-1,-1) to signify that
             if not self.valid_coords(self.player_posx + x_offset, self.player_posy + y_offset):
                 return (-1,-1)
+            
+            # If we've hit an obstacle, don't advance any further, change orientation and return current coordinates
             if self.get(self.player_posx + x_offset, self.player_posy + y_offset).obstacle == True:
                 self.orientation = self.orientation.rotate()
                 return self.player_posx, self.player_posy
             
+            # Otherwise, it means we still have some way to go, so increment x and y position with the offsets
             self.player_posx += x_offset
             self.player_posy += y_offset
     
     def step(self: Self):
+        """Run the simulation for one step. When it hits an obstacle, it first rotates the player then returns.
+        Returns None if the simulation is done (we've exited the map).
+        Returns the last valid coordinates of the player."""
+
+        # If the number of moves so far is bigger than the total number of cells in the grid, it is an infinite loop
         self.moves += 1
         if self.moves > self.columns()*self.rows():
             return None
@@ -126,18 +175,19 @@ class Map:
             return [self.player_posx, self.player_posy]
         
         # If the coordinates are valid and there is no obstacle, set player coordinates to new_coords
-        # and mark the node as visited
         self.player_posx = new_coords[0]
         self.player_posy = new_coords[1]
-        self.get(self.player_posx, self.player_posy).visited = True
         return new_coords
         
     def valid_coords(self: Self, x: int, y: int) -> bool:
+        """Checks if x and y are valid coordinates in the current map"""
         if x >= 0 and y >= 0 and x < self.rows() and y < self.columns():
             return True
         return False
     
     def to_string(self: Self) -> str:
+        """To string functionality for the board, useful for debugging. It should return back a string representation such that
+        it coincides with the raw data in the given file."""
         result = ""
         for i in range(self.columns()):
             row = ""
@@ -153,6 +203,7 @@ class Map:
 
     
 def load_file_into_array() -> List[List[str]]:
+    """Writes the grid into a list of lists of strings that will later be parsed by the Map object"""
     text = []
     with open("ultra_test.txt", "r") as f:
         while line := f.readline():
@@ -161,6 +212,9 @@ def load_file_into_array() -> List[List[str]]:
     return text
 
 def run_simulation(grid: Map):
+    """Given a map, run the simulation until the simulation ends.
+    Returns 0 if the simulation ended successfully.
+    Returns None if the simulation entered an infinite loop."""
     while True:
         step_result = grid.until_next_obstacle()
         if step_result == (-1, -1):
@@ -168,16 +222,23 @@ def run_simulation(grid: Map):
         if step_result is None:
             return None
      
-    
+
+# Load the map data into the map object
 raw_data = load_file_into_array()
 map = Map(raw_data)
 
+# Save initial player position
 init_playerx = map.player_posx
 init_playery = map.player_posy
+
+# Start a timer to measure how long it took
 start_time = time.process_time()
-elapsed_time_count = 0
+# Measure how many maps have entered an infinite loop
+infinite_loop_count = 0
+# Measure the total number of maps tested
 total = 0
 
+# For every x, y position on the map that is not an obstacle or the initial position of the player
 for i in range(0, map.rows()):
     for j in range(0, map.columns()):
         total += 1
@@ -187,17 +248,25 @@ for i in range(0, map.rows()):
         if map.get(i, j).obstacle == True:
             continue
 
+        # Set an obstacle at that position
         map.get(i, j).obstacle = True
+        # Run the simulation and see if it enters an infinite loop
         sim_result = run_simulation(map)
+        
+        # If it does, increment the counter
         if sim_result is None:
-            elapsed_time_count += 1
-            
+            infinite_loop_count += 1
+        
+        # For every 1000th map tried, print a message with the progress
         if total % 1000 == 0:
             print(total, "grids tried so far out of", map.rows()*map.columns())
         
+        # Set the cell back to being an empty cell and reset the parameters
+        # for the next simulation
         map.get(i, j).obstacle = False
         map.reset_sim(init_playerx, init_playery)
 
+# Print how many have entered infinite loops and how much time it took
 end_time = time.process_time()
 print("Time taken:", end_time - start_time, "s")
-print(elapsed_time_count)
+print(infinite_loop_count)
